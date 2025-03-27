@@ -24,7 +24,9 @@ import {
   Trash2,
   Github,
   Twitter as TwitterIcon,
-  Facebook as FacebookIcon
+  Facebook as FacebookIcon,
+  Moon,
+  Sun
 } from 'lucide-react';
 
 type ConversionType = 'pdf-to-excel' | 'txt-to-pdf' | 'excel-to-pdf' | 'images-to-pdf' | 'pdf-to-docx' | 'word-to-pdf' | 'remove-background' | 'audio-transcription';
@@ -122,6 +124,11 @@ export default function App() {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem('darkMode');
+    return savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  });
+  const [selectedTool, setSelectedTool] = useState('background');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
@@ -166,6 +173,18 @@ export default function App() {
     }
     return () => clearInterval(interval);
   }, [isRecording]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode);
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(prev => {
+      const newDarkMode = !prev;
+      localStorage.setItem('darkMode', newDarkMode ? 'dark' : 'light');
+      return newDarkMode;
+    });
+  };
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
@@ -371,31 +390,45 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white font-['Inter']">
+    <div className="min-h-screen bg-background-light dark:bg-background-dark text-primary-light dark:text-primary-dark">
       {/* Header */}
-      <header className="bg-white border-b border-indigo-100 sticky top-0 z-50">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <FileType2 className="h-8 w-8 text-indigo-600" />
-              <span className="ml-2 text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
+              <FileType2 className="h-8 w-8 text-primary-light dark:text-primary-dark" />
+              <span className="ml-2 text-2xl font-bold text-primary-light dark:text-primary-dark">
                 FileConverter
               </span>
             </div>
             
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#tools" className="text-gray-600 hover:text-indigo-600 font-medium">Tools</a>
-              <a href="#features" className="text-gray-600 hover:text-indigo-600 font-medium">Features</a>
-              <a href="#about" className="text-gray-600 hover:text-indigo-600 font-medium">About</a>
-              <a href="#contact" className="text-gray-600 hover:text-indigo-600 font-medium">Contact</a>
+              <a href="tools" className="text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark font-medium">Tools</a>
+              <a href="features" className="text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark font-medium">Features</a>
+              <a href="about" className="text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark font-medium">About</a>
+              <a href="contact" className="text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark font-medium">Contact</a>
+              <button
+                onClick={toggleDarkMode}
+                className="p-2 text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark"
+                aria-label="Toggle dark mode"
+              >
+                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
             </div>
 
             {/* Mobile menu button */}
-            <div className="md:hidden flex items-center">
+            <div className="md:hidden flex items-center space-x-4">
+              <button
+                onClick={toggleDarkMode}
+                className="p-2 text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark"
+                aria-label="Toggle dark mode"
+              >
+                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="text-gray-600 hover:text-indigo-600"
+                className="text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark"
               >
                 <Menu className="h-6 w-6" />
               </button>
@@ -404,38 +437,37 @@ export default function App() {
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <div className="md:hidden py-4 bg-white absolute top-16 left-0 right-0 z-50 border-b border-indigo-100">
+            <div className="md:hidden py-4 bg-white dark:bg-gray-800 absolute top-16 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-700 shadow-lg">
               <div className="px-4">
                 <div className="space-y-1">
-                  <a href="#tools" className="block py-2 text-gray-600 hover:text-indigo-600">Tools</a>
-                  <a href="#features" className="block py-2 text-gray-600 hover:text-indigo-600">Features</a>
-                  <a href="#about" className="block py-2 text-gray-600 hover:text-indigo-600">About</a>
-                  <a href="#contact" className="block py-2 text-gray-600 hover:text-indigo-600">Contact</a>
-                </div>
-                
-                <div className="mt-4 pt-4 border-t border-indigo-100">
-                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Conversion Tools</h3>
-                  <div className="mt-2 space-y-1">
-                    {conversionOptions.map((option) => (
-                      <button
-                        key={option.id}
-                        onClick={() => {
-                          setSelectedConversion(option.id);
-                          setMobileMenuOpen(false);
-                          const toolsSection = document.getElementById('tools');
-                          toolsSection?.scrollIntoView({ behavior: 'smooth' });
-                        }}
-                        className={`w-full text-left flex items-center space-x-2 py-2 px-3 rounded-md ${
-                          selectedConversion === option.id
-                            ? 'bg-indigo-50 text-indigo-600'
-                            : 'text-gray-600 hover:bg-gray-50'
-                        }`}
-                      >
-                        {option.icon}
-                        <span>{option.title}</span>
-                      </button>
-                    ))}
-                  </div>
+                  <a 
+                    href="tools" 
+                    className="block py-2 text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Tools
+                  </a>
+                  <a 
+                    href="features" 
+                    className="block py-2 text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Features
+                  </a>
+                  <a 
+                    href="about" 
+                    className="block py-2 text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    About
+                  </a>
+                  <a 
+                    href="contact" 
+                    className="block py-2 text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Contact
+                  </a>
                 </div>
               </div>
             </div>
@@ -470,8 +502,8 @@ export default function App() {
       <section id="tools" className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">Choose Your Tool</h2>
-            <p className="mt-4 text-gray-600">Select from our wide range of conversion options</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Choose Your Tool</h2>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Select from our wide range of conversion options</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -481,21 +513,21 @@ export default function App() {
                 onClick={() => setSelectedConversion(option.id)}
                 className={`p-6 rounded-xl border-2 transition-all hover:shadow-lg ${
                   selectedConversion === option.id
-                    ? 'border-indigo-600 bg-indigo-50'
-                    : 'border-gray-200 hover:border-indigo-400'
+                    ? 'border-primary-light dark:border-primary-dark bg-indigo-50 dark:bg-gray-700'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-primary-light dark:hover:border-primary-dark'
                 }`}
               >
                 <div className="flex flex-col items-center text-center space-y-4">
                   <div className={`p-3 rounded-full ${
                     selectedConversion === option.id
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-indigo-100 text-indigo-600'
+                      ? 'bg-primary-light dark:bg-primary-dark text-white dark:text-gray-800'
+                      : 'bg-indigo-100 dark:bg-gray-600 text-primary-light dark:text-primary-dark'
                   }`}>
                     {option.icon}
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{option.title}</h3>
-                    <p className="mt-2 text-sm text-gray-600">{option.description}</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{option.title}</h3>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{option.description}</p>
                   </div>
                 </div>
               </button>
@@ -505,15 +537,18 @@ export default function App() {
       </section>
 
       {/* Converter Interface */}
-      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8">
-        <h3 className="text-2xl font-bold text-indigo-900 mb-6">{currentOption.title}</h3>
+      <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+        <h3 className="text-2xl font-bold text-indigo-900 dark:text-white mb-6">{currentOption.title}</h3>
         
         <div {...getRootProps()} className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-          ${isDragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 hover:border-indigo-400'}`}>
+          ${isDragActive 
+            ? 'border-primary-light dark:border-primary-dark bg-indigo-50 dark:bg-gray-700' 
+            : 'border-gray-300 dark:border-gray-600 hover:border-primary-light dark:hover:border-primary-dark'}
+        }`}>
           <input {...getInputProps()} />
-          <FileUp className="h-12 w-12 mx-auto text-indigo-400 mb-4" />
-          <p className="text-gray-600">Drag & drop your files here, or click to select files</p>
-          <p className="text-sm text-gray-500 mt-2">
+          <FileUp className="h-12 w-12 mx-auto text-primary-light dark:text-primary-dark mb-4" />
+          <p className="text-primary-light dark:text-primary-dark">Drag & drop your files here, or click to select files</p>
+          <p className="text-sm text-primary-light/70 dark:text-primary-dark/70 mt-2">
             {currentOption.maxFiles 
               ? `Up to ${currentOption.maxFiles} files allowed` 
               : 'Single file upload'}
@@ -522,17 +557,17 @@ export default function App() {
 
         {files.length > 0 && (
           <div className="mt-6">
-            <h4 className="text-lg font-semibold mb-3">Selected Files</h4>
+            <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Selected Files</h4>
             <div className="space-y-2">
               {files.map((file, index) => (
-                <div key={index} className="flex items-center justify-between bg-indigo-50 p-3 rounded">
+                <div key={index} className="flex items-center justify-between bg-indigo-50 dark:bg-gray-700 p-3 rounded">
                   <div className="flex items-center space-x-3">
-                    <FileText className="h-5 w-5 text-indigo-400" />
-                    <span className="text-sm text-gray-600">{file.name}</span>
+                    <FileText className="h-5 w-5 text-primary-light dark:text-primary-dark" />
+                    <span className="text-sm text-primary-light dark:text-primary-dark">{file.name}</span>
                   </div>
                   <button
                     onClick={() => removeFile(index)}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   >
                     <Trash2 className="h-5 w-5" />
                   </button>
@@ -543,8 +578,8 @@ export default function App() {
         )}
 
         {error && (
-          <div className="mt-4 p-4 bg-red-50 rounded-lg">
-            <div className="flex items-center space-x-2 text-red-600">
+          <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/30 rounded-lg">
+            <div className="flex items-center space-x-2 text-red-600 dark:text-red-400">
               <AlertCircle className="h-5 w-5" />
               <span>{error}</span>
             </div>
@@ -552,16 +587,16 @@ export default function App() {
         )}
 
         {downloadUrl && (
-          <div className="mt-4 p-4 bg-green-50 rounded-lg">
+          <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/30 rounded-lg">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 text-green-600">
+              <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
                 <CheckCircle className="h-5 w-5" />
                 <span>Conversion completed!</span>
               </div>
               <a
                 href={downloadUrl}
                 download
-                className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                className="flex items-center space-x-2 px-4 py-2 bg-primary-light dark:bg-primary-dark text-white dark:text-gray-800 rounded-lg hover:bg-secondary-light dark:hover:bg-secondary-dark"
               >
                 <Download className="h-5 w-5" />
                 <span>Download</span>
@@ -576,7 +611,7 @@ export default function App() {
           className={`mt-6 w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg text-white font-medium
             ${files.length === 0 || converting
               ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-indigo-600 hover:bg-indigo-700'
+              : 'bg-primary-light dark:bg-primary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark text-white dark:text-gray-800'
             }`}
         >
           {converting ? (
@@ -594,339 +629,102 @@ export default function App() {
       </div>
 
       {/* Media Conversion Section */}
-      <section id="media-conversion" className="py-16 bg-gradient-to-br from-indigo-50 to-white">
+      <section id="media-conversion" className="py-16 bg-gradient-to-br from-indigo-50 to-blue dark:bg-gradient-to-br from-blue-900 to-blue-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">Media Tools</h2>
-            <p className="mt-4 text-gray-600">Advanced tools for image and audio processing</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Media Tools</h2>
+            <p className="text-gray-600 dark:text-gray-400">Advanced tools for image and audio processing</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Background Removal Tool */}
-            <div className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-all">
+            <div 
+              className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 hover:shadow-xl transition-all
+                ${selectedTool === 'background' ? 'ring-2 ring-primary-light dark:ring-primary-dark' : ''}`}
+            >
               <div className="flex items-center mb-6">
-                <div className="p-3 rounded-full bg-indigo-100 text-indigo-600">
+                <div className={`p-3 rounded-full ${
+                  selectedTool === 'background' 
+                    ? 'bg-primary-light dark:bg-primary-dark text-white dark:text-gray-800' 
+                    : 'bg-indigo-100 dark:bg-gray-700 text-primary-light dark:text-primary-dark'
+                }`}>
                   <ImageIcon className="h-6 w-6" />
                 </div>
-                <h3 className="ml-3 text-xl font-semibold text-gray-800">Remove Background</h3>
+                <h3 className="ml-3 text-lg font-medium text-primary-light dark:text-primary-dark">Remover fundo</h3>
               </div>
-
-              <div className="space-y-6">
-                <div className="relative group">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setMediaFile(file);
-                        setError(null);
-                      }
-                    }}
-                    className="hidden"
-                    id="image-file"
-                  />
-                  <label
-                    htmlFor="image-file"
-                    onDragEnter={handleImageDragEnter}
-                    onDragOver={handleImageDragOver}
-                    onDragLeave={handleImageDragLeave}
-                    onDrop={handleImageDrop}
-                    className={`flex flex-col items-center justify-center w-full h-40 px-4 transition-all duration-300 
-                      border-2 border-dashed rounded-xl
-                      ${isDraggingImage 
-                        ? 'border-indigo-500 bg-indigo-50 scale-[1.02]' 
-                        : 'border-gray-300 bg-gradient-to-br from-white to-gray-50 hover:bg-gradient-to-br hover:from-indigo-50 hover:to-white hover:border-indigo-300'
-                      }
-                      hover:shadow-lg cursor-pointer group relative overflow-hidden`}
-                  >
-                    {isDraggingImage && (
-                      <div className="absolute inset-0 bg-indigo-500/10 animate-pulse"></div>
-                    )}
-                    {mediaFile ? (
-                      <div className="flex flex-col items-center space-y-3">
-                        <div className={`relative w-20 h-20 rounded-lg overflow-hidden transition-all duration-300 ${
-                          isDraggingImage ? 'scale-110' : ''
-                        }`}>
-                          <img
-                            src={URL.createObjectURL(mediaFile)}
-                            alt="Preview"
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                            <ImageIcon className="h-8 w-8 text-white" />
-                          </div>
-                        </div>
-                        <span className="text-sm font-medium text-gray-700 text-center">
-                          {mediaFile.name}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {isDraggingImage ? 'Drop to replace image' : 'Click to change image'}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center space-y-3">
-                        <div className={`p-3 rounded-full transition-all duration-300 ${
-                          isDraggingImage 
-                            ? 'bg-indigo-200 text-indigo-600 scale-110' 
-                            : 'bg-gray-100 text-gray-600 group-hover:bg-indigo-100 group-hover:text-indigo-600'
-                        }`}>
-                          <ImageIcon className="h-8 w-8" />
-                        </div>
-                        <div className="flex flex-col items-center">
-                          <span className="text-sm font-medium text-gray-700 text-center">
-                            {isDraggingImage 
-                              ? 'Drop your image here' 
-                              : <>Drop your image here, or <span className="text-indigo-600 group-hover:text-indigo-700">browse</span></>
-                            }
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            PNG, JPG, or JPEG up to 10MB
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </label>
-                  {mediaFile && (
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setMediaFile(null);
-                        setMediaConversionResult(null);
-                      }}
-                      className="absolute -top-2 -right-2 p-1.5 rounded-full bg-red-100 text-red-600 hover:bg-red-200 hover:scale-110 transition-all duration-200"
-                      title="Remove image"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  )}
+              
+              <div className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
+                border-indigo-200 dark:border-gray-600 
+                hover:border-primary-light dark:hover:border-primary-dark
+                bg-white dark:bg-gray-800">
+                <div {...getRootProps()} className="relative">
+                  <input {...getInputProps()} />
+                  <FileUp className="h-12 w-12 mx-auto text-primary-light dark:text-primary-dark mb-4" />
+                  <p className="text-sm text-primary-light dark:text-primary-dark">
+                    Solte sua imagem aqui ou <span className="text-secondary-light dark:text-secondary-dark">navegue</span>
+                  </p>
+                  <p className="text-xs text-primary-light/70 dark:text-primary-dark/70 mt-2">
+                    PNG, JPG ou JPEG até 10 MB
+                  </p>
                 </div>
-
-                {mediaFile && !mediaConversionResult && (
-                  <button
-                    onClick={handleMediaConversion}
-                    className="w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg text-white font-medium bg-indigo-600 hover:bg-indigo-700 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                  >
-                    <ImageIcon className="h-5 w-5" />
-                    <span>Remove Background</span>
-                  </button>
-                )}
-
-                {mediaConversionResult && (
-                  <div className="space-y-4">
-                    <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
-                      <img
-                        src={mediaConversionResult}
-                        alt="Result"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <a
-                      href={mediaConversionResult}
-                      download="image-no-background.png"
-                      className="w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg text-white font-medium bg-green-600 hover:bg-green-700 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                      <Download className="h-5 w-5" />
-                      <span>Download Result</span>
-                    </a>
-                  </div>
-                )}
-
-                {error && (
-                  <div className="p-4 bg-red-50 rounded-lg flex items-center space-x-2 text-red-600">
-                    <AlertCircle className="h-5 w-5 flex-shrink-0" />
-                    <p>{error}</p>
-                  </div>
-                )}
               </div>
             </div>
 
             {/* Audio Transcription Tool */}
-            <div className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-all">
+            <div 
+              className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 hover:shadow-xl transition-all
+                ${selectedTool === 'audio' ? 'ring-2 ring-primary-light dark:ring-primary-dark' : ''}`}
+            >
               <div className="flex items-center mb-6">
-                <div className="p-3 rounded-full bg-indigo-100 text-indigo-600">
-                  <FileEdit className="h-6 w-6" />
+                <div className={`p-3 rounded-full ${
+                  selectedTool === 'audio' 
+                    ? 'bg-primary-light dark:bg-primary-dark text-white dark:text-gray-800' 
+                    : 'bg-indigo-100 dark:bg-gray-700 text-primary-light dark:text-primary-dark'
+                }`}>
+                  <Mic className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 ml-4">Audio Transcription</h3>
+                <h3 className="ml-3 text-lg font-medium text-primary-light dark:text-primary-dark">Transcrição de áudio</h3>
               </div>
 
               <div className="space-y-6">
-                {/* Recording Controls */}
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-700 uppercase mb-3">Record Audio</h4>
-                  <div className="flex flex-col items-center">
-                    <button
-                      onClick={!isRecording ? startRecording : stopRecording}
-                      className={`relative w-20 h-20 rounded-full transition-all duration-500 transform hover:scale-105 ${
-                        isRecording 
-                          ? 'bg-red-600 hover:bg-red-700' 
-                          : 'bg-indigo-600 hover:bg-indigo-700'
-                      }`}
-                    >
-                      {isRecording ? (
-                        <>
-                          <StopCircle className="h-8 w-8 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10" />
-                          <div className="absolute inset-0 rounded-full">
-                            <div className="absolute inset-0 rounded-full border-4 border-white animate-ping opacity-75"></div>
-                            <div className="absolute inset-0 rounded-full border-4 border-white animate-pulse"></div>
-                          </div>
-                        </>
-                      ) : (
-                        <Mic className="h-8 w-8 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                      )}
-                    </button>
-                    {isRecording && (
-                      <div className="mt-4 flex items-center space-x-2">
-                        <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></div>
-                        <span className="font-mono text-lg text-red-600">{formatTime(recordingTime)}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* File Upload */}
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-700 uppercase mb-3">Or Upload Audio File</h4>
-                  <div className="relative group">
-                    <input
-                      type="file"
-                      accept="audio/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          setAudioFile(file);
-                          setError(null);
-                        }
-                      }}
-                      className="hidden"
-                      id="audio-file"
-                    />
-                    <label
-                      htmlFor="audio-file"
-                      onDragEnter={handleDragEnter}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      className={`flex flex-col items-center justify-center w-full h-32 px-4 transition-all duration-300 
-                        border-2 border-dashed rounded-xl
-                        ${isDragging 
-                          ? 'border-indigo-500 bg-indigo-50 scale-[1.02]' 
-                          : 'border-gray-300 bg-gradient-to-br from-white to-gray-50 hover:bg-gradient-to-br hover:from-indigo-50 hover:to-white hover:border-indigo-300'
-                        }
-                        hover:shadow-lg cursor-pointer group relative overflow-hidden`}
-                    >
-                      {isDragging && (
-                        <div className="absolute inset-0 bg-indigo-500/10 animate-pulse"></div>
-                      )}
-                      {audioFile ? (
-                        <div className="flex flex-col items-center space-y-2">
-                          <div className={`p-2 rounded-full transition-all duration-300 ${
-                            isDragging ? 'bg-indigo-200 scale-110' : 'bg-indigo-100'
-                          } text-indigo-600`}>
-                            <FileText className="h-6 w-6" />
-                          </div>
-                          <span className="text-sm font-medium text-gray-700 text-center">
-                            {audioFile.name}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {isDragging ? 'Drop to replace file' : 'Click to change file'}
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center space-y-2">
-                          <div className={`p-2 rounded-full transition-all duration-300 ${
-                            isDragging 
-                              ? 'bg-indigo-200 text-indigo-600 scale-110' 
-                              : 'bg-gray-100 text-gray-600 group-hover:bg-indigo-100 group-hover:text-indigo-600'
-                          }`}>
-                            <FileUp className="h-6 w-6" />
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <span className="text-sm font-medium text-gray-700">
-                              {isDragging 
-                                ? 'Drop your file here' 
-                                : <>Drop your audio file here, or <span className="text-indigo-600 group-hover:text-indigo-700">browse</span></>
-                              }
-                            </span>
-                            <span className="text-xs text-gray-500 mt-1">
-                              MP3, WAV, or M4A up to 10MB
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </label>
-                    {audioFile && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setAudioFile(null);
-                        }}
-                        className="absolute -top-2 -right-2 p-1.5 rounded-full bg-red-100 text-red-600 hover:bg-red-200 hover:scale-110 transition-all duration-200"
-                        title="Remove file"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Transcribe Button */}
-                {audioFile && (
+                <div className="text-center">
                   <button
-                    onClick={handleTranscription}
-                    disabled={isTranscribing}
-                    className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg text-white font-medium ${
-                      isTranscribing 
-                        ? 'bg-indigo-400 cursor-not-allowed'
-                        : 'bg-indigo-600 hover:bg-indigo-700 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]'
+                    onClick={isRecording ? stopRecording : startRecording}
+                    className={`p-4 rounded-full transition-colors ${
+                      isRecording 
+                        ? 'bg-red-500 hover:bg-red-600 text-white' 
+                        : `${selectedTool === 'audio' 
+                            ? 'bg-primary-light dark:bg-primary-dark text-white dark:text-gray-800' 
+                            : 'bg-indigo-100 dark:bg-gray-700 text-primary-light dark:text-primary-dark'}`
                     }`}
                   >
-                    {isTranscribing ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Transcribing...</span>
-                      </>
-                    ) : (
-                      <>
-                        <FileEdit className="h-5 w-5" />
-                        <span>Transcribe Audio</span>
-                      </>
-                    )}
+                    <Mic className="h-8 w-8" />
                   </button>
-                )}
+                  <p className="mt-2 text-sm text-primary-light dark:text-primary-dark">
+                    {isRecording ? 'GRAVAR ÁUDIO' : 'Clique para gravar'}
+                  </p>
+                </div>
 
-                {/* Results */}
-                {transcriptionResult && (
-                  <div className="relative">
-                    <h4 className="text-sm font-semibold text-gray-700 uppercase mb-2">Transcription Result:</h4>
-                    <div className="p-4 bg-gray-50 rounded-lg relative group">
-                      <button
-                        onClick={() => handleCopyText(transcriptionResult)}
-                        className={`absolute top-2 right-2 p-2 rounded-lg transition-all duration-200 ${
-                          copied 
-                            ? 'bg-green-100 text-green-600' 
-                            : 'text-gray-400 hover:text-indigo-600 hover:bg-indigo-50'
-                        }`}
-                        title="Copy to clipboard"
-                      >
-                        <Copy className="h-5 w-5" />
-                      </button>
-                      {copied && (
-                        <div className="absolute top-2 right-12 bg-green-600 text-white text-xs px-2 py-1 rounded transform -translate-y-1/2 transition-opacity duration-200">
-                          Copied!
-                        </div>
-                      )}
-                      <p className="text-gray-700 whitespace-pre-wrap pr-12 leading-relaxed">{transcriptionResult}</p>
+                <div className="border-t border-indigo-200 dark:border-gray-700 pt-6">
+                  <p className="text-center text-sm text-primary-light dark:text-primary-dark mb-4">
+                    OU CARREGAR ARQUIVO DE ÁUDIO
+                  </p>
+                  <div className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
+                    border-indigo-200 dark:border-gray-600 
+                    hover:border-primary-light dark:hover:border-primary-dark
+                    bg-white dark:bg-gray-800">
+                    <div {...getRootProps()} className="relative">
+                      <input {...getInputProps()} />
+                      <FileUp className="h-12 w-12 mx-auto text-primary-light dark:text-primary-dark mb-4" />
+                      <p className="text-sm text-primary-light dark:text-primary-dark">
+                        Solte seu arquivo de áudio aqui ou <span className="text-secondary-light dark:text-secondary-dark">navegue</span>
+                      </p>
+                      <p className="text-xs text-primary-light/70 dark:text-primary-dark/70 mt-2">
+                        MP3, WAV ou M4A até 10 MB
+                      </p>
                     </div>
                   </div>
-                )}
-
-                {error && (
-                  <div className="p-4 bg-red-50 rounded-lg flex items-center space-x-2 text-red-600">
-                    <AlertCircle className="h-5 w-5 flex-shrink-0" />
-                    <p>{error}</p>
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
@@ -934,82 +732,82 @@ export default function App() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-16 bg-white">
+      <section id="features" className="py-16 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">Why Choose Our Converter</h2>
-            <p className="mt-4 text-gray-600">Experience the best file conversion service online</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Why Choose Our Converter</h2>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Experience the best file conversion service online</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gradient-to-br from-indigo-50 to-white p-8 rounded-xl shadow-md hover:shadow-lg transition-all">
-              <Shield className="h-12 w-12 text-indigo-600 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">100% Secure</h3>
-              <p className="text-gray-600">Your files are encrypted and automatically deleted after conversion</p>
+            <div className="bg-gradient-to-br from-indigo-50 to-white dark:from-gray-800 dark:to-gray-700 p-8 rounded-xl shadow-md hover:shadow-lg transition-all">
+              <Shield className="h-12 w-12 text-primary-light dark:text-primary-dark mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">100% Secure</h3>
+              <p className="text-gray-600 dark:text-gray-400">Your files are encrypted and automatically deleted after conversion</p>
             </div>
-            <div className="bg-gradient-to-br from-indigo-50 to-white p-8 rounded-xl shadow-md hover:shadow-lg transition-all">
-              <Zap className="h-12 w-12 text-indigo-600 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Lightning Fast</h3>
-              <p className="text-gray-600">Convert your files in seconds with our optimized algorithms</p>
+            <div className="bg-gradient-to-br from-indigo-50 to-white dark:from-gray-800 dark:to-gray-700 p-8 rounded-xl shadow-md hover:shadow-lg transition-all">
+              <Zap className="h-12 w-12 text-primary-light dark:text-primary-dark mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Lightning Fast</h3>
+              <p className="text-gray-600 dark:text-gray-400">Convert your files in seconds with our optimized algorithms</p>
             </div>
-            <div className="bg-gradient-to-br from-indigo-50 to-white p-8 rounded-xl shadow-md hover:shadow-lg transition-all">
-              <Globe className="h-12 w-12 text-indigo-600 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Easy to Use</h3>
-              <p className="text-gray-600">No registration required. Convert files from any device, anywhere</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section id="about" className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-indigo-900 mb-6">About FileConverter</h2>
-            <p className="text-gray-600 mb-8">
-              FileConverter is your trusted online file conversion tool. We provide fast, secure, and high-quality 
-              conversion services for all your document needs. Our mission is to make file conversion accessible 
-              to everyone, everywhere.
-            </p>
-            <div className="flex justify-center space-x-6">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-indigo-600">1M+</div>
-                <div className="text-gray-600">Files Converted</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-indigo-600">100K+</div>
-                <div className="text-gray-600">Happy Users</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-indigo-600">99.9%</div>
-                <div className="text-gray-600">Success Rate</div>
-              </div>
+            <div className="bg-gradient-to-br from-indigo-50 to-white dark:from-gray-800 dark:to-gray-700 p-8 rounded-xl shadow-md hover:shadow-lg transition-all">
+              <Globe className="h-12 w-12 text-primary-light dark:text-primary-dark mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Easy to Use</h3>
+              <p className="text-gray-600 dark:text-gray-400">No registration required. Convert files from any device, anywhere</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-16 bg-indigo-50">
+      <section id="contact" className="py-16 bg-gradient-to-br from-indigo-100 to-white dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-indigo-900 mb-6">Contact Us</h2>
-            <p className="text-gray-600 mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Get in Touch</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-8">
               Have questions? We're here to help. Reach out to our support team.
             </p>
             <div className="flex justify-center space-x-6">
-              <a href="mailto:jorgesebastiaopaulo@gmail.com" className="text-indigo-600 hover:text-indigo-700">
+              <a href="mailto:jorgesebastiaopaulo@gmail.com" className="text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark">
                 <Mail className="h-6 w-6" />
               </a>
-              <a href="https://x.com/jorge832924501" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700">
+              <a href="https://x.com/jorge832924501" target="_blank" rel="noopener noreferrer" className="text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark">
                 <TwitterIcon className="h-6 w-6" />
               </a>
-              <a href="https://www.facebook.com/JorgeS.paulomepia/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700">
+              <a href="https://www.facebook.com/JorgeS.paulomepia/" target="_blank" rel="noopener noreferrer" className="text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark">
                 <FacebookIcon className="h-6 w-6" />
               </a>
-              <a href="https://github.com/Jorgepaulo123/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700">
+              <a href="https://github.com/Jorgepaulo123/" target="_blank" rel="noopener noreferrer" className="text-primary-light dark:text-primary-dark hover:text-secondary-light dark:hover:text-secondary-dark">
                 <Github className="h-6 w-6" />
               </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="py-16 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl font-bold text-indigo-900 dark:text-white mb-6">About FileConverter</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-8">
+              FileConverter is your trusted online file conversion tool. We provide fast, secure, and high-quality 
+              conversion services for all your document needs. Our mission is to make file conversion accessible 
+              to everyone, everywhere.
+            </p>
+            <div className="flex justify-center space-x-6">
+              <div className="text-center">
+                <div className="text-4xl font-bold text-primary-light dark:text-primary-dark">1M+</div>
+                <div className="text-gray-600 dark:text-gray-400">Files Converted</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-primary-light dark:text-primary-dark">100K+</div>
+                <div className="text-gray-600 dark:text-gray-400">Happy Users</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-primary-light dark:text-primary-dark">99.9%</div>
+                <div className="text-gray-600 dark:text-gray-400">Success Rate</div>
+              </div>
             </div>
           </div>
         </div>
@@ -1023,7 +821,9 @@ export default function App() {
             <div className="space-y-4">
               <div className="flex items-center">
                 <FileType2 className="h-8 w-8" />
-                <span className="ml-2 text-2xl font-bold">FileConverter</span>
+                <span className="ml-2 text-2xl font-bold text-primary-light dark:text-primary-dark">
+                  FileConverter
+                </span>
               </div>
               <p className="text-indigo-200">
                 The most powerful file conversion tool on the web. Convert any file format with ease.
@@ -1035,22 +835,22 @@ export default function App() {
               <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="#tools" className="text-indigo-200 hover:text-white transition-colors">
+                  <a href="/" className="text-indigo-200 hover:text-white transition-colors">
                     Tools
                   </a>
                 </li>
                 <li>
-                  <a href="#features" className="text-indigo-200 hover:text-white transition-colors">
+                  <a href="/" className="text-indigo-200 hover:text-white transition-colors">
                     Features
                   </a>
                 </li>
                 <li>
-                  <a href="#about" className="text-indigo-200 hover:text-white transition-colors">
+                  <a href="/" className="text-indigo-200 hover:text-white transition-colors">
                     About Us
                   </a>
                 </li>
                 <li>
-                  <a href="#contact" className="text-indigo-200 hover:text-white transition-colors">
+                  <a href="/" className="text-indigo-200 hover:text-white transition-colors">
                     Contact
                   </a>
                 </li>
@@ -1103,13 +903,13 @@ export default function App() {
                 &copy; {new Date().getFullYear()} FileConverter. All rights reserved.
               </p>
               <div className="flex space-x-6 mt-4 md:mt-0">
-                <a href="#" className="text-indigo-200 hover:text-white transition-colors">
+                <a href="/" className="text-indigo-200 hover:text-white transition-colors">
                   Privacy Policy
                 </a>
-                <a href="#" className="text-indigo-200 hover:text-white transition-colors">
+                <a href="/" className="text-indigo-200 hover:text-white transition-colors">
                   Terms of Service
                 </a>
-                <a href="#" className="text-indigo-200 hover:text-white transition-colors">
+                <a href="/" className="text-indigo-200 hover:text-white transition-colors">
                   Cookie Policy
                 </a>
               </div>
