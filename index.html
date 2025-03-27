@@ -3,14 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <!-- Favicons -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
     <link rel="shortcut icon" type="image/x-icon" href="/favicon/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FileConverter - Convert your files with ease. Free online file converter for PDF, Excel, Word, Images and more." />
+    <meta name="theme-color" content="#4f46e5" />
     
     <!-- Primary Meta Tags -->
-    <title>FileConverter - Free Online File Converter</title>
+    <title>FileConverter - Easy Online File Conversion</title>
     <meta name="title" content="FileConverter - Free Online File Converter" />
     <meta name="description" content="Convert PDFs, images, audio files and more with our free online converter. Fast, secure, and easy to use." />
 
@@ -112,14 +114,13 @@
       }
     </style>
     <script>
-      // Initialize dark mode before app loads
-      (function() {
-        const savedTheme = localStorage.getItem('darkMode');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-          document.documentElement.classList.add('dark');
-        }
-      })();
+      // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+      if (localStorage.getItem('darkMode') === 'dark' || 
+          (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     </script>
   </head>
   <body>

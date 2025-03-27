@@ -5,26 +5,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: {
-          light: '#4f46e5', // indigo-600 for light mode
-          dark: '#ffffff',  // white for dark mode
-        },
-        secondary: {
-          light: '#4338ca', // indigo-700 for hover in light mode
-          dark: '#818cf8',  // indigo-400 for hover in dark mode
-        },
-        background: {
-          light: 'white',
-          dark: '#1a1a1a'
-        },
-        text: {
-          light: '#4f46e5', // indigo-600 for light mode
-          dark: '#ffffff'   // white for dark mode
-        },
-        accent: {
-          primary: '#7c3aed',
-          secondary: '#4f46e5'
-        }
+        'primary-light': 'var(--color-primary-light)',
+        'secondary-light': 'var(--color-secondary-light)',
+        'background-light': 'var(--color-background-light)',
+        'primary-dark': 'var(--color-primary-dark)',
+        'secondary-dark': 'var(--color-secondary-dark)',
+        'background-dark': 'var(--color-background-dark)',
       }
     },
   },
