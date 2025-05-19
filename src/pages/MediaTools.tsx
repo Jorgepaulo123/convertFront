@@ -145,14 +145,14 @@ const MediaTools = () => {
       const formData = new FormData();
       formData.append('file', mediaFile);
 
-      const response = await axios.post('https://converter-production-e953.up.railway.app/remove-background', formData, {
+      const response = await axios.post('https://converter-e63j.onrender.com/remove-background', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
       });
 
       if (response.data.download_url) {
-        setMediaConversionResult(`https://converter-production-e953.up.railway.app${response.data.download_url}`);
+        setMediaConversionResult(`https://converter-e63j.onrender.com${response.data.download_url}`);
       } else {
         throw new Error('No download URL received');
       }
