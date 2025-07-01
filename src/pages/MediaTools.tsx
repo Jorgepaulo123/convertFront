@@ -117,7 +117,7 @@ const MediaTools = () => {
 
       const response = await axios.post('https://api.groq.com/openai/v1/audio/transcriptions', formData, {
         headers: {
-          'Authorization': 'Bearer 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',
+          'Authorization': 'Bearer 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',
           'Content-Type': 'multipart/form-data'
         }
       });
